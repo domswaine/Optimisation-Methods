@@ -5,32 +5,40 @@ class BelmanNode:
   def __repr__(self):
     return "(Parent => " + str(self.parent) + ", d => " + str(self.shortest_path_estimate) + ")"
 
-def initialisation(s, vertices):
-  d = {vertex:BelmanNode() for vertex in vertices}
-  d[s].shortest_path_estimate = 0
-  return d
 
-def relax(edge, d):
-  u, v, w = edge
-  new_weight = d[u].shortest_path_estimate + w
-  if new_weight < d[v].shortest_path_estimate:
-    d[v].shortest_path_estimate = new_weight
-  return d
+class BellmanFord:
 
-def bellman_ford(G, s):
-  edges, vertices = G
-  d = initialisation(s, vertices)
-  
-  for i in range(1, len(vertices)-1):
-    for e in edges:
-      d = relax(e, d)
-  print(d)
+  def __init__(self, G, s):
+    self.edges = G[0]
+    self.vertices = G[1]
+    self.start_vertex = s
+    self.d = {vertex:BelmanNode() for vertex in self.vertices}
 
-  for e in edges:
-    u, v, w = e
-    if d[u].shortest_path_estimate > d[u].shortest_path_estimate + w:
-      return False
-  return True
+  def initialise(self):
+    self.d[self.start_vertex].shortest_path_estimate = 0
+
+  def relax(self, edge):
+    u, v, w = edge
+    new_weight = self.d[u].shortest_path_estimate + w
+    if new_weight < self.d[v].shortest_path_estimate:
+      self.d[v].shortest_path_estimate = new_weight
+      self.d[v].parent = u
+
+  def compute(self):
+    self.initialise()
+    
+    for i in range(1, len(self.vertices)-1):
+      for e in self.edges:
+        self.relax(e)
+    
+    print(self.d)
+
+    for e in self.edges:
+      u, v, w = e
+      if self.d[u].shortest_path_estimate > self.d[u].shortest_path_estimate + w:
+        return False
+    return True
+
 
 e = [
      ('s', 'u', 10),
@@ -46,4 +54,4 @@ e = [
 ]
 v = ['s', 'u', 'v', 'x', 'y']
 
-print(bellman_ford((edges, vertices), 's'))
+print(BellmanFord((e, v), 's').compute())
